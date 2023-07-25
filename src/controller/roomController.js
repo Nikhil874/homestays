@@ -4,22 +4,22 @@ const FloorModel = require("../model/floorModel");
 const express = require("express");
 const router = express.Router();
 
-async function isRoomNumberExistsOnFloor(floorId,newRoomNo) {
+async function isRoomNumberExistsOnFloor(floorId, newRoomNo) {
   const rooms = await RoomModel.find(floorId);
-  const roomNumbers = rooms?.map(room => room.roomNo)
+  const roomNumbers = rooms?.map((room) => room.roomNo);
   return roomNumbers?.includes(newRoomNo);
 }
 
 function CustomError(message, code) {
-  const error = new Error(message)
+  const error = new Error(message);
   error.code = code;
-  return error
+  return error;
 }
 
 //show rooms
 router.get("", async (req, res) => {
   try {
-    let roomData = await RoomModel.find(req.body)
+    let roomData = await RoomModel.find(req.body);
     // .populate("pgId")
     // .populate("floorId");
     res.status(200).send(roomData);
@@ -34,14 +34,19 @@ router.post("", async (req, res) => {
     const rooms = await RoomModel.find(req.floorId);
     const roomsPerFloor = await FloorModel.find(req.floorId);
     if (!!roomsPerFloor?.length && !!rooms?.length) {
-      if (!(roomsPerFloor[0].noOfRooms >= rooms.length)) throw CustomError("No room available on this floor!",400)
+      if (!(roomsPerFloor[0].noOfRooms >= rooms.length))
+        throw CustomError("No room available on this floor!", 400);
       //check if room number exists
       // const roomNumbers = rooms?.map(room => room.roomNo)
-    const roomNumberExists = await isRoomNumberExistsOnFloor(
-      req.floorId,
-      req.body.roomNo
+      const roomNumberExists = await isRoomNumberExistsOnFloor(
+        req.floorId,
+        req.body.roomNo
       );
-      if(roomNumberExists) throw CustomError("Room number already taken.Please choose another number",400)
+      if (roomNumberExists)
+        throw CustomError(
+          "Room number already taken.Please choose another number",
+          400
+        );
       let roomData = await RoomModel.create(req.body);
       res.status(201).send("Room added successfully");
     }
@@ -58,7 +63,7 @@ router.delete("/:id", async (req, res) => {
       const response = await RoomModel.deleteOne({ _id: roomId });
       if (!response?.deletedCount) throw CustomError("Invalid Room Id", 400);
       res.status(200).send("Room successfully deleted!");
-    }else throw CustomError("Invalid Room Id", 400);
+    } else throw CustomError("Invalid Room Id", 400);
   } catch (e) {
     res.status(e.code ?? 500).send(e.message);
   }
@@ -83,12 +88,11 @@ router.patch("/:id", async (req, res) => {
               400
             );
         }
-        await room.updateOne(req.body)
+        await room.updateOne(req.body);
         res.status(200).send("Room successfully updated");
-      } else throw CustomError("Room not found!!",400)
-  } else throw CustomError("Invalid Id!!", 400);
+      } else throw CustomError("Room not found!!", 400);
+    } else throw CustomError("Invalid Id!!", 400);
   } catch (e) {
-    console.log(e)
     res.status(e.code ?? 500).send(e.message);
   }
 });
