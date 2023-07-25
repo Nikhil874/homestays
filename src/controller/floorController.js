@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    let floorData = await FloorModel.find().lean().exec();
+    let floorData = await FloorModel.find(req.body);
     res.status(200).send(floorData);
   } catch (e) {
     res.status(500).send(e.message);
