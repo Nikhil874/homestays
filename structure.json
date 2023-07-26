@@ -11,11 +11,11 @@
     "noOfRooms": 5
   },
   "room": {
-    "pg_id": 1,
-    "floor_id": 1,
+    "pgId": 1,
+    "floorId": 1,
     "roomNo": 1,
-    "noOfMembers": 4,
-    "minRentPerPerson": 10000
+    "minRentPerPerson": 10000,
+    "tenants": []
   },
   "user": {
     "room_id": 1,
