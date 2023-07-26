@@ -33,23 +33,20 @@ router.post("", async (req, res) => {
     // check if rooms limit for floor reached
     const rooms = await RoomModel.find(req.floorId);
     const roomsPerFloor = await FloorModel.find(req.floorId);
-    if (!!roomsPerFloor?.length && !!rooms?.length) {
-      if (!(roomsPerFloor[0].noOfRooms >= rooms.length))
-        throw CustomError("No room available on this floor!", 400);
-      //check if room number exists
-      // const roomNumbers = rooms?.map(room => room.roomNo)
+    if (roomsPerFloor[0].noOfRooms) {
+      if (!!roomsPerFloor?.length) {
+        if (!(roomsPerFloor[0].noOfRooms >= rooms.length)) throw CustomError("No room available on this floor!",400)
+        //check if room number exists
       const roomNumberExists = await isRoomNumberExistsOnFloor(
         req.floorId,
         req.body.roomNo
-      );
-      if (roomNumberExists)
-        throw CustomError(
-          "Room number already taken.Please choose another number",
-          400
         );
-      let roomData = await RoomModel.create(req.body);
-      res.status(201).send("Room added successfully");
-    }
+        if(roomNumberExists) throw CustomError("Room number already taken.Please choose another number",400)
+        req.body.tenants = [];
+        await RoomModel.create(req.body);
+        res.status(201).send("Room added successfully!");
+      }
+    } else throw CustomError("No rooms in this floor", 400);
   } catch (e) {
     res.status(e.code ?? 500).send(e.message);
   }
