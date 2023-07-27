@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 const RoomModel = require("../model/roomModel");
 const FloorModel = require("../model/floorModel");
 const express = require("express");
+const { CustomError } = require("../utils/customError");
+const usersModel = require("../model/usersModel");
+const { updateTenantArrOperations } = require("../constants");
 const router = express.Router();
 
 async function isRoomNumberExistsOnFloor(floorId, newRoomNo) {
@@ -10,11 +13,7 @@ async function isRoomNumberExistsOnFloor(floorId, newRoomNo) {
   return roomNumbers?.includes(newRoomNo);
 }
 
-function CustomError(message, code) {
-  const error = new Error(message);
-  error.code = code;
-  return error;
-}
+
 
 //show rooms
 router.get("", async (req, res) => {
@@ -46,7 +45,7 @@ router.post("", async (req, res) => {
         await RoomModel.create(req.body);
         res.status(201).send("Room added successfully!");
       }
-    } else throw CustomError("No rooms in this floor", 400);
+    } else throw customError("No rooms in this floor", 400);
   } catch (e) {
     res.status(e.code ?? 500).send(e.message);
   }
@@ -66,7 +65,37 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-//update a room
+
+router.patch("/updateTenantArr", async (req, res) => {
+  try {
+    const { userId = null, roomId = null, operation = "Add" } = req.body;
+    if (!userId || !roomId) {
+      throw new CustomError("Invalid Id!");
+    }
+    const room = await RoomModel.findOne({ _id: roomId });
+    if (room) {
+      const user = await usersModel.findOne({ _id: userId });
+      if (user) {
+        room.tenants = room.tenants.filter((tenant) => tenant != userId);
+        
+        if (operation === updateTenantArrOperations.ADD) {
+          room.tenants.push(userId);
+          user.room = roomId;
+        } else if (updateTenantArrOperations.DELETE) {
+          user.room = null;
+        }
+        
+        user.save();
+        room.save();
+        res.status(200).send(`Operation: ${operation} performed successfully on tenant array!`)
+      } else throw new CustomError("No user found!", 404);
+    } else { }
+  } catch (e) {
+    res.status(e.code ?? 500).send(e.message);
+  }
+});
+
+// update a room
 router.patch("/:id", async (req, res) => {
   try {
     const roomId = req.params.id;
@@ -93,5 +122,4 @@ router.patch("/:id", async (req, res) => {
     res.status(e.code ?? 500).send(e.message);
   }
 });
-
 module.exports = router;

@@ -4,7 +4,7 @@ const express = require("express");
 const pgModel = require("../model/pgModel");
 const router = express.Router();
 
-router.get("", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     let pgData = await PgModel.find().lean().exec();
     res.status(200).send(pgData);

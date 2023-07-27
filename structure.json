@@ -14,14 +14,15 @@
     "pgId": 1,
     "floorId": 1,
     "roomNo": 1,
+    "sharingType": 1,
     "minRentPerPerson": 10000,
     "tenants": []
   },
   "user": {
-    "room_id": 1,
     "user_id": 1,
     "name": "Vishnu",
     "startDate": "2/1/23",
-    "amount": 11000
+    "amount": 11000,
+    "room": ""
   }
 }

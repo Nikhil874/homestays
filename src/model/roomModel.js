@@ -14,6 +14,7 @@ const roomSchema = new mongoose.Schema(
       ref: "pgModel",
       required: true,
     },
+    sharingType:{ type: Number, required: true },
     tenants: [
       {
         type: mongoose.Schema.Types.ObjectId,
