@@ -4,11 +4,13 @@ const PgController = require("./controller/pgController");
 const FloorController = require("./controller/floorController");
 const RoomController = require("./controller/roomController");
 const Controllers = require("./controller");
+const cors = require("cors")
 require("dotenv").config();
 
 const port = process.env.PORT || 1333;
 
 const app = express();
+app.use(cors())
 
 app.use(express.json());
 app.use("/api/v1/pg", Controllers);
