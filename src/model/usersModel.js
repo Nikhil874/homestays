@@ -10,4 +10,10 @@ const userSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false }
 );
 
+// userSchema.pre("deleteOne", async function (req, res) {
+//   const rooms  
+//   room.tenants = room.tenants.filter((tenant) => tenant != userId);
+//   console.log("called pre",this._conditions,req.rooms) 
+// })
+
 module.exports = mongoose.model("userModel", userSchema);
