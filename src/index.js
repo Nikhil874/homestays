@@ -12,6 +12,14 @@ const port = process.env.PORT || 1333;
 const app = express();
 app.use(cors())
 
+// const corsOptions ={
+//   origin:'any', 
+//   credentials:true,            //access-control-allow-credentials:true
+//   optionSuccessStatus:200,
+//   methods:"any"
+// }
+// app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use("/api/v1/pg", Controllers);
 
