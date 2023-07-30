@@ -4,6 +4,18 @@ const { CustomError } = require("../utils/customError");
 
 const router = require("express").Router();
 
+router.get("/", async (req, res) => {
+  try {
+    const users = await UserModel.find(req.body).populate(
+      "room"
+    );
+    res.status(200).send(users);
+    return;
+  } catch (e) {
+    res.status(e.code ?? 500).send(e.message);
+    return;
+  }
+});
 router.get("/:id", async (req, res) => {
   try {
     const users = await UserModel.find({ room: req.params.id }).populate(
@@ -21,13 +33,13 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     //check wheter room exists
-    const room = await RoomModel.findOne({ _id: req.body.room });
+    const room = await RoomModel.findOne({ _id: req.body.room }).lean().exec();
     if (!room) {
       res.status(400).send("invalid room");
       return;
     }
     // see whether room is full
-    if(room.tenants.length === room.sharingType){
+    if(room.tenants.length >= room.sharingType){
       res.status(400).send("room is full");
       return;
     }
@@ -91,5 +103,9 @@ router.delete("/:id", async (req, res) => {
     return;
   }
 });
+
+
+
+
 
 module.exports = router;
