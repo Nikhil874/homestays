@@ -92,9 +92,4 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-
-
-router.get("/:id/revenue", async (req, res) => {
-});
-
 module.exports = router;

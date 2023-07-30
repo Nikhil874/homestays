@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 const connect = () =>{
-    return mongoose.connect("mongodb+srv://Nikhil874:Nikil874@cluster0.3l0um.mongodb.net/homestays")
+    return mongoose.connect(process.env.CONNECTION_STRING)
 }
 
 module.exports = connect;

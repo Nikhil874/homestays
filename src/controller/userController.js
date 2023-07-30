@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
     res.status(200).send(users);
     return;
   } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
+    res.status(500).send(e.message);
     return;
   }
 });
@@ -24,7 +24,7 @@ router.get("/:id", async (req, res) => {
     res.status(200).send(users);
     return;
   } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
+    res.status(500).send(e.message);
     return;
   }
 });
@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
       res.status(400).send("invalid room");
       return;
     }
-    // see whether room is full
+    // see whether room  full
     if(room.tenants.length >= room.sharingType){
       res.status(400).send("room is full");
       return;
@@ -46,16 +46,17 @@ router.post("/", async (req, res) => {
 
     const newUser = await UserModel.create(req.body);
     //update tenent details in room
-    room.tenants[room.tenants.length] = newUser;
-    const updatedRoom = await RoomModel.updateOne(room);
-    console.log({newUser,updatedRoom,room})
+    room.tenants[room.tenants.length] = newUser?._id;
+    delete room["_id"];
+    const updatedRoom = await RoomModel.findByIdAndUpdate(req.body.room,room)
+    
 
     res
       .status(201)
       .send(`New user: ${(newUser.name, newUser._id)} added successfully!`);
     return;
   } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
+    res.status(500).send(e.message);
     return;
   }
 });
@@ -76,7 +77,7 @@ router.patch("/:id", async (req, res) => {
       } else throw CustomError("User not found!!", 400);
     } else throw CustomError("Invalid Id!", 400);
   } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
+    res.status(500).send(e.message);
     return;
   }
 });
@@ -91,7 +92,8 @@ router.delete("/:id", async (req, res) => {
       if (user.room) {
         const room = await RoomModel.findOne({ _id: user.room });
         room.tenants = room.tenants.filter((tenant) => tenant != userId);
-        room.save();
+        delete room["_id"];
+        const updatedRoom = await RoomModel.findByIdAndUpdate(user.room,room)
       }
       const response = await UserModel.deleteOne({ _id: userId });
       if (!response?.deletedCount) throw CustomError("Invalid User Id", 400);
@@ -99,7 +101,7 @@ router.delete("/:id", async (req, res) => {
       return;
     } else throw CustomError("Invalid User Id", 400);
   } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
+    res.status(500).send(e.message);
     return;
   }
 });

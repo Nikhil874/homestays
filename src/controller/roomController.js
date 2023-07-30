@@ -66,7 +66,7 @@ router.post("/:id", async (req, res) => {
       } else throw CustomError("Room not found!!", 400);
     } else throw CustomError("Invalid Id!!", 400);
   } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
+    res.status(500).send(e.message);
   }
 });
 
@@ -102,7 +102,7 @@ router.post("", async (req, res) => {
       throw customError("No rooms in this floor", 400);
     }
   } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
+    res.status(500).send(e.message);
     return;
   }
 });
@@ -122,7 +122,7 @@ router.delete("/:id", async (req, res) => {
       throw CustomError("Invalid Room Id", 400);
     }
   } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
+    res.status(500).send(e.message);
     return;
   }
 });
@@ -155,11 +155,11 @@ router.patch("/updateTenantArr", async (req, res) => {
           );
       } else throw new CustomError("No user found!", 404);
     } else {
+      throw new CustomError("Invalid Id!");
     }
   } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
+    res.status(500).send(e.message);
   }
 });
-
 
 module.exports = router;
