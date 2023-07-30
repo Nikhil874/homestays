@@ -14,9 +14,9 @@ async function isRoomNumberExistsOnFloor(floorId, newRoomNo) {
 }
 
 //show rooms
-router.get("/:id", async (req, res) => {
+router.get("/:floorId", async (req, res) => {
   try {
-    let roomData = await RoomModel.find({ floorId: req.params.id });
+    let roomData = await RoomModel.find({ floorId: req.params.floorId });
     // .populate("pgId")
     // .populate("floorId");
     res.status(200).send(roomData);
@@ -41,6 +41,35 @@ router.get("/roomDetails/:id", async (req, res) => {
   }
 });
 
+// update a room
+router.post("/:id", async (req, res) => {
+  try {
+    const roomId = req.params.id;
+    if (!!roomId) {
+      const room = await RoomModel.findOne({ _id: roomId });
+      if (room) {
+        //check if room number exists
+        if (req.body.roomNo) {
+          const roomNumberExists = await isRoomNumberExistsOnFloor(
+            req.floorId,
+            req.body.roomNo
+          );
+          if (roomNumberExists)
+            throw CustomError(
+              "Room number already taken.Please choose another number",
+              400
+            );
+        }
+        await room.updateOne(req.body);
+        res.status(200).send("Room successfully updated");
+        return;
+      } else throw CustomError("Room not found!!", 400);
+    } else throw CustomError("Invalid Id!!", 400);
+  } catch (e) {
+    res.status(e.code ?? 500).send(e.message);
+  }
+});
+
 //create a room
 router.post("", async (req, res) => {
   try {
@@ -51,7 +80,6 @@ router.post("", async (req, res) => {
       if (!!roomsPerFloor?.length) {
         if (!(roomsPerFloor[0].noOfRooms >= rooms.length)) {
           throw CustomError("No room available on this floor!", 400);
-          return;
         }
         //check if room number exists
         const roomNumberExists = await isRoomNumberExistsOnFloor(
@@ -63,7 +91,6 @@ router.post("", async (req, res) => {
             "Room number already taken.Please choose another number",
             400
           );
-          return;
         }
 
         req.body.tenants = [];
@@ -73,7 +100,6 @@ router.post("", async (req, res) => {
       }
     } else {
       throw customError("No rooms in this floor", 400);
-      return;
     }
   } catch (e) {
     res.status(e.code ?? 500).send(e.message);
@@ -89,13 +115,11 @@ router.delete("/:id", async (req, res) => {
       const response = await RoomModel.deleteOne({ _id: roomId });
       if (!response?.deletedCount) {
         throw CustomError("Invalid Room Id", 400);
-        return;
       }
       res.status(200).send("Room successfully deleted!");
       return;
     } else {
       throw CustomError("Invalid Room Id", 400);
-      return;
     }
   } catch (e) {
     res.status(e.code ?? 500).send(e.message);
@@ -108,7 +132,6 @@ router.patch("/updateTenantArr", async (req, res) => {
     const { userId = null, roomId = null, operation = "Add" } = req.body;
     if (!userId || !roomId) {
       throw new CustomError("Invalid Id!");
-      return;
     }
     const room = await RoomModel.findOne({ _id: roomId });
     if (room) {
@@ -138,32 +161,5 @@ router.patch("/updateTenantArr", async (req, res) => {
   }
 });
 
-// update a room
-router.patch("/:id", async (req, res) => {
-  try {
-    const roomId = req.params.id;
-    if (!!roomId) {
-      const room = await RoomModel.findOne({ _id: roomId });
-      if (room) {
-        //check if room number exists
-        if (req.body.roomNo) {
-          const roomNumberExists = await isRoomNumberExistsOnFloor(
-            req.floorId,
-            req.body.roomNo
-          );
-          if (roomNumberExists)
-            throw CustomError(
-              "Room number already taken.Please choose another number",
-              400
-            );
-        }
-        await room.updateOne(req.body);
-        res.status(200).send("Room successfully updated");
-        return;
-      } else throw CustomError("Room not found!!", 400);
-    } else throw CustomError("Invalid Id!!", 400);
-  } catch (e) {
-    res.status(e.code ?? 500).send(e.message);
-  }
-});
+
 module.exports = router;
