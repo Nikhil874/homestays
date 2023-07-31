@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema(
     startDate: { type: Date, required: true },
     amount: { type: Number, required: true },
     room: { type: mongoose.Schema.Types.ObjectId, ref: "roomModel" },
+    paid:{type:Boolean,default:false}
   },
   { timestamps: true, versionKey: false }
 );
