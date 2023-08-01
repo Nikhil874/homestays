@@ -29,6 +29,24 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+//update a user's name,startDate,amount;
+router.post("/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (!!userId) {
+      const user = await UserModel.findOne({ _id: userId });
+      if (user) {
+        await user.updateOne(req.body);
+        res.status(200).send("user successfully updated");
+        return;
+      } else throw CustomError("User not found!!", 400);
+    } else throw CustomError("Invalid Id!", 400);
+  } catch (e) {
+    res.status(500).send(e.message);
+    return;
+  }
+});
+
 //create a user
 router.post("/", async (req, res) => {
   try {
@@ -61,26 +79,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-//update a user's name,startDate,amount;
-router.patch("/:id", async (req, res) => {
-  try {
-    const userId = req.params.id;
-    if (!!userId) {
-      const user = await UserModel.findOne({ _id: userId }).populate("room");
-      if (user) {
-        if (req.body?.room) {
-          delete req.body.room; // removing the room from request of present
-        }
-        await room.updateOne(req.body);
-        res.status(200).send("Room successfully updated");
-        return;
-      } else throw CustomError("User not found!!", 400);
-    } else throw CustomError("Invalid Id!", 400);
-  } catch (e) {
-    res.status(500).send(e.message);
-    return;
-  }
-});
 
 //delete a user
 router.delete("/:id", async (req, res) => {
