@@ -6,10 +6,24 @@ const router = require("express").Router();
 
 router.get("/", async (req, res) => {
   try {
+    let { page = 1, size = 1 } = req.query;
+    page = Number(page);
+    size = Number(size);
+    let noOfPages = 0,
+      startingIndex = 0,
+      endingIndex = 0;
     const users = await UserModel.find(req.body).populate(
       "room"
     );
-    res.status(200).send(users);
+    if (!!users?.length) {
+      noOfPages = Math.ceil(users.length / size);
+      startingIndex = (page - 1) * size;
+      endingIndex = startingIndex + size;
+    }
+    const response = !!users?.length ? users.slice(startingIndex, endingIndex) : users;
+    res
+      .status(200)
+      .send({ response, noOfPages, totalEntries: users?.length ?? 0 });
     return;
   } catch (e) {
     res.status(500).send(e.message);
