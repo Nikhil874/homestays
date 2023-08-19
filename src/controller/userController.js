@@ -43,7 +43,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-//update a user's name,startDate,amount;
+//update a user's name,startDate,amount,mobileNo;
 router.post("/:id", async (req, res) => {
   try {
     const userId = req.params.id;
